@@ -21,7 +21,7 @@
                             @endif
                         </div>
                         <div class="form-group mb-3">
-                            <label for="category_id">Category</label>
+                            <label for="category_id">Category*</label>
                             <select class="form-control {{ $errors->has('category_id') ? 'is-invalid' : '' }}" id="category_id" name="category_id">
                                     <option>Select category</option>
                                 @foreach ($categories as $k => $v)
@@ -35,7 +35,7 @@
                             @endif
                         </div>
                         <div class="form-group mb-3">
-                            <label for="img">Image</label>
+                            <label for="img">Image*</label>
                             <input type="file" class="form-control-file {{ $errors->has('img') ? 'is-invalid' : '' }}"" id="img"  name="img">
                             @if($errors->has('img'))
                                 <div class="invalid-feedback">

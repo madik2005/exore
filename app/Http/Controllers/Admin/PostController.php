@@ -22,6 +22,20 @@ class PostController extends Controller
     }
 
     /**
+    * Helper function for validate form post data.
+    *
+    * @return mixed
+    */
+    public function validateData($request)
+    {
+        return $this->validate($request,[
+            'title' => ['required', 'string', 'max:255'],
+            'img' => ['required', 'image', 'mimes:jpg,png,jpeg,gif,svg', 'max:2048'],
+            'category_id' => ['required', 'integer'],
+        ]);
+    }
+
+    /**
     * Show the post create form.
     *
     * @return \Illuminate\Contracts\Support\Renderable
@@ -117,15 +131,6 @@ class PostController extends Controller
         $this->authorize('viewPost', $post);
         $categories = Category::pluck('title', 'id')->all();
         return view('admin.posts.edit', compact('post', 'categories'));
-    }
-
-    public function validateData($request)
-    {
-        return $this->validate($request,[
-            'title' => ['required', 'string', 'max:255'],
-            'img' => ['required', 'image', 'mimes:jpg,png,jpeg,gif,svg', 'max:2048'],
-            'category_id' => ['required', 'integer'],
-        ]);
     }
 
     /**

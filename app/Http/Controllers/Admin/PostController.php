@@ -26,11 +26,11 @@ class PostController extends Controller
     *
     * @return mixed
     */
-    public function validateData($request)
+    public function validateData($request, $required = 'required')
     {
         return $this->validate($request,[
             'title' => ['required', 'string', 'max:255'],
-            'img' => ['required', 'image', 'mimes:jpg,png,jpeg,gif,svg', 'max:2048'],
+            'img' => [$required, 'image', 'mimes:jpg,png,jpeg,gif,svg', 'max:2048'],
             'category_id' => ['required', 'integer'],
         ]);
     }
@@ -142,10 +142,10 @@ class PostController extends Controller
     {
         $post = Post::find($id);
         $this->authorize('viewPost', $post);
-        $this->validateData($request);
+        $this->validateData($request, 'nullable');
         
         $data = $request->all();
-        $data['img'] = Post::uploadImage($request, $post->img);
+        if(isset($data['img'])) $data['img'] = Post::uploadImage($request, $post->img);
 
         $post->update($data);
 

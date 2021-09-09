@@ -34,8 +34,8 @@
                             @endif
                         </div>
                         <div class="form-group mb-3">
-                            <label for="img">Image*</label>
-                            <input type="file" class="form-control-file {{ $errors->has('image') ? 'is-invalid' : '' }}"" id="img"  name="img">
+                            <label for="img">Image</label>
+                            <input type="file" class="form-control-file {{ $errors->has('img') ? 'is-invalid' : '' }}"" id="img"  name="img">
                             @if($errors->has('img'))
                                 <div class="invalid-feedback">
                                     <strong>{{ $errors->first('img') }}</strong>

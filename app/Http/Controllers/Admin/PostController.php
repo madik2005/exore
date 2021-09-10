@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{User, Category, Post};
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
@@ -19,6 +18,7 @@ class PostController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        
     }
 
     /**
@@ -33,6 +33,22 @@ class PostController extends Controller
             'img' => [$required, 'image', 'mimes:jpg,png,jpeg,gif,svg', 'max:2048'],
             'category_id' => ['required', 'integer'],
         ]);
+    }
+
+    /**
+     * Helper function check if isset current page with post.
+     *
+     * @return Illuminate\Http\RedirectResponse
+     */
+    protected function redirectNoPage($posts, Request $request, $route, $id = null)
+    {
+        $lastpage = $posts->lastPage();
+        $page = $request->input('page');
+        $url_variable = ($id) ? ['id' => $id, 'page' => $lastpage] : ['page'=>$lastpage];
+        if ($page>$lastpage) {
+            return redirect()->route($route, $url_variable);
+        }
+        return null;
     }
 
     /**
@@ -76,8 +92,10 @@ class PostController extends Controller
             $posts = Post::orderBy('id', 'desc')->paginate(10);
         } else {
             $posts = Post::where('user_id', Auth::id())->orderBy('id', 'desc')->paginate(10);
-        }    
-        return view('admin.posts.show', compact('posts'));
+        }
+
+        $target_url = $this->redirectNoPage($posts, $request, 'admin.posts.show');
+        return isset($target_url) ? redirect($target_url->getTargetUrl()) : view('admin.posts.show', compact('posts'));
     }
 
     /**
@@ -104,8 +122,10 @@ class PostController extends Controller
             $posts = Post::where('category_id', $id)->paginate(10);
         } else {
             $posts = Post::where('category_id', $id)->where('user_id', Auth::id())->paginate(10);
-        }    
-        return view('admin.posts.show', compact('posts'));
+        }
+
+        $target_url = $this->redirectNoPage($posts, $request, 'admin.category.posts.show', $id);
+        return isset($target_url) ? redirect($target_url->getTargetUrl()) : view('admin.posts.show', compact('posts'));
     }
 
     /**
@@ -117,7 +137,9 @@ class PostController extends Controller
     {
         $this->authorize('createUser', $user);
         $posts = Post::where('user_id', $id)->paginate(10);
-        return view('admin.posts.show', compact('posts'));
+
+        $target_url = $this->redirectNoPage($posts, $request,'admin.user.posts.show', $id);
+        return isset($target_url) ? redirect($target_url->getTargetUrl()) :  view('admin.posts.show', compact('posts'));
     }
 
     /**
@@ -163,11 +185,7 @@ class PostController extends Controller
         $this->authorize('viewPost', $post);
         Storage::delete($post->img);
         $post->delete();
-        return redirect()->route('admin.posts.show')->with('success', 'Post deleted');
+        $url = url()->previous();
+        return redirect($url)->with('success', 'Post deleted');
     }
-
-
-
-
-
 }
